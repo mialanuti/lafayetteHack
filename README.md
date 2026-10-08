@@ -6,7 +6,7 @@ or authentication; triaged records are stored in `inbox.json`.
 ## Run locally
 
 1. Install dependencies with `python -m pip install -r requirements.txt`.
-2. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`.
+2. Copy `.env.example` to `.env` and set `GEMINI_API_KEY`. Gemini is selected automatically when it is the only configured provider; you can also set `AI_PROVIDER=gemini` and `GEMINI_MODEL=gemini-3.8-flash` explicitly. OpenAI remains available with `AI_PROVIDER=openai` and `OPENAI_API_KEY`.
 3. Refresh UNC football and basketball home games with `python sync_game_days.py`.
 4. Add the bar's real policies and event details to `business.md`.
 5. Start the app with `uvicorn main:app --reload` and open http://127.0.0.1:8000.

@@ -81,6 +81,7 @@ class TriageRecord(TriageResult):
 
 
 app = FastAPI(title="Event Desk")
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 
 SYSTEM_PROMPT = """You triage inbound inquiries for a bar.
@@ -217,41 +218,79 @@ def invalid_result() -> TriageResult:
     )
 
 
+def configured_model() -> tuple[OpenAI, str, str]:
+    provider = os.getenv("AI_PROVIDER", "").strip().lower()
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if not provider:
+        provider = "gemini" if gemini_key and not openai_key else "openai"
+
+    if provider == "gemini":
+        if not gemini_key:
+            raise HTTPException(status_code=503, detail="GEMINI_API_KEY is missing from .env")
+        if not gemini_key.isascii():
+            raise HTTPException(
+                status_code=503,
+                detail="GEMINI_API_KEY must be ASCII; copy it again from Google AI Studio.",
+            )
+        return (
+            OpenAI(api_key=gemini_key, base_url=GEMINI_BASE_URL),
+            os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+            provider,
+        )
+
+    if provider == "openai":
+        if not openai_key:
+            raise HTTPException(status_code=503, detail="OPENAI_API_KEY is missing from .env")
+        return OpenAI(api_key=openai_key), os.getenv("OPENAI_MODEL", "gpt-4o-mini"), provider
+
+    raise HTTPException(status_code=503, detail="AI_PROVIDER must be 'gemini' or 'openai'")
+
+
 def call_model(message: str, received_date: date, high_demand_date: bool) -> TriageResult:
     business_context = BUSINESS_PATH.read_text(encoding="utf-8")
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="OPENAI_API_KEY is missing from .env")
-    client = OpenAI(api_key=api_key)
+    client, model, provider = configured_model()
+    messages = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT,
+        },
+        {
+            "role": "user",
+            "content": json.dumps(
+                {
+                    "message": message,
+                    "received_date": received_date.isoformat(),
+                    "business_context": business_context,
+                    "high_demand_date": high_demand_date,
+                }
+            ),
+        },
+    ]
     try:
-        response = client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            response_format={"type": "json_object"},
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
-                },
-                {
-                    "role": "user",
-                    "content": json.dumps(
-                        {
-                            "message": message,
-                            "received_date": received_date.isoformat(),
-                            "business_context": business_context,
-                            "high_demand_date": high_demand_date,
-                        }
-                    ),
-                },
-            ],
-        )
+        if provider == "gemini":
+            response = client.beta.chat.completions.parse(
+                model=model,
+                messages=messages,
+                response_format=TriageResult,
+            )
+        else:
+            response = client.chat.completions.create(
+                model=model,
+                response_format={"type": "json_object"},
+                messages=messages,
+            )
     except OpenAIError as error:
         raise HTTPException(
             status_code=502,
-            detail="Model request failed; check OPENAI_API_KEY and OPENAI_MODEL.",
+            detail=f"{provider.title()} model request failed; check its API key and model name.",
         ) from error
     try:
-        content = response.choices[0].message.content
+        model_message = response.choices[0].message
+        parsed = getattr(model_message, "parsed", None)
+        if parsed is not None:
+            return TriageResult.model_validate(parsed)
+        content = model_message.content
         return TriageResult.model_validate_json(content or "")
     except (ValidationError, ValueError, TypeError, IndexError, AttributeError):
         return invalid_result()

@@ -80,7 +80,7 @@ class TriageTests(unittest.TestCase):
         )
         with (
             patch.object(main, "OpenAI", return_value=client),
-            patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"AI_PROVIDER": "openai", "OPENAI_API_KEY": "test-key"}),
         ):
             main.call_model("Can I book a party?", date(2026, 10, 8), True)
 
@@ -96,6 +96,62 @@ class TriageTests(unittest.TestCase):
             'begin with "DRAFT FOR OWNER APPROVAL:"',
         ):
             self.assertIn(requirement, prompt)
+
+    def test_gemini_key_selects_compatible_endpoint_and_structured_model(self):
+        captured_request = {}
+        payload = main.TriageResult(
+            category=main.Category.party_group,
+            details=main.InquiryDetails(date=None, headcount=8, ask="Ask about booking"),
+            decision=main.Decision.ask_customer,
+            reason="The event date is missing.",
+            draft_reply="DRAFT FOR OWNER APPROVAL: What date are you considering?",
+        )
+        completion = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=payload.model_dump_json()))]
+        )
+
+        def capture_request(**kwargs):
+            captured_request.update(kwargs)
+            return completion
+
+        client = SimpleNamespace(
+            beta=SimpleNamespace(
+                chat=SimpleNamespace(
+                    completions=SimpleNamespace(parse=capture_request)
+                )
+            )
+        )
+        with (
+            patch.object(main, "OpenAI", return_value=client) as openai_factory,
+            patch.dict(
+                os.environ,
+                {
+                    "GEMINI_API_KEY": "test-gemini-key",
+                    "GEMINI_MODEL": "gemini-test-model",
+                },
+                clear=True,
+            ),
+        ):
+            result = main.call_model("Can we host a party?", date(2026, 10, 8), False)
+
+        openai_factory.assert_called_once_with(
+            api_key="test-gemini-key", base_url=main.GEMINI_BASE_URL
+        )
+        self.assertEqual(captured_request["model"], "gemini-test-model")
+        self.assertIs(captured_request["response_format"], main.TriageResult)
+        self.assertEqual(result, payload)
+
+    def test_non_ascii_gemini_key_fails_with_actionable_message(self):
+        with patch.dict(
+            os.environ,
+            {"AI_PROVIDER": "gemini", "GEMINI_API_KEY": "invalid-key\u200b"},
+            clear=True,
+        ):
+            with self.assertRaises(main.HTTPException) as raised:
+                main.configured_model()
+
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertIn("must be ASCII", raised.exception.detail)
 
     def test_invalid_model_result_escalates_with_required_reason(self):
         result = main.invalid_result()
@@ -146,7 +202,7 @@ class TriageTests(unittest.TestCase):
         )
         with (
             patch.object(main, "OpenAI", return_value=client),
-            patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"AI_PROVIDER": "openai", "OPENAI_API_KEY": "test-key"}),
         ):
             result = main.call_model("Can I book a party?", date(2026, 10, 8), False)
 
@@ -161,7 +217,7 @@ class TriageTests(unittest.TestCase):
         )
         with (
             patch.object(main, "OpenAI", return_value=client),
-            patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}),
+            patch.dict(os.environ, {"AI_PROVIDER": "openai", "OPENAI_API_KEY": "test-key"}),
         ):
             result = main.call_model("Can I book a party?", date(2026, 10, 8), False)
 
