@@ -3,291 +3,369 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f2ec">
+  <meta name="theme-color" content="#14181c">
   <title>Event Desk</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
-      --paper: #f4f2ec;
-      --surface: #fffefa;
-      --ink: #212623;
-      --muted: #777c75;
-      --line: #ddded6;
-      --green: #234e40;
-      --green-soft: #e0eee7;
-      --red: #b94937;
-      --red-soft: #f5e3de;
-      --amber: #95631b;
-      --amber-soft: #f5ecd7;
-      --gray-soft: #e9e9e4;
-      --shadow: 0 16px 40px rgba(35, 45, 38, 0.07);
-      font-family: "DM Sans", "Segoe UI", sans-serif;
+      --night: #14181c;
+      --night-2: #1f252b;
+      --paper: #f5f4f0;
+      --surface: #ffffff;
+      --ink: #1c2024;
+      --muted: #6b7178;
+      --line: #dcdad3;
+      --gold: #e0a422;
+      --carolina: #4b9cd3;
+      --carolina-ink: #236895;
+      --ok: #2f7a4f;
+      --ok-soft: #e2f1e8;
+      --warn: #81570f;
+      --warn-soft: #f7edd3;
+      --stop: #a52e24;
+      --stop-soft: #f7e1dd;
+      --idle: #50565c;
+      --idle-soft: #e8e8e5;
+      --display: "Oswald", Impact, "Arial Narrow", sans-serif;
+      --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-family: var(--body);
       color: var(--ink);
       background: var(--paper);
+      font-synthesis: none;
     }
 
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-width: 320px;
-      min-height: 100vh;
-      background-color: var(--paper);
-      background-image: radial-gradient(rgba(35, 78, 64, 0.055) 0.7px, transparent 0.7px);
-      background-size: 15px 15px;
-    }
-
+    [hidden] { display: none !important; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--paper); }
     button, textarea, input { font: inherit; }
-    button { cursor: pointer; }
-
-    .shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 0 17px;
-      border-bottom: 1px solid var(--line);
+    button { color: inherit; cursor: pointer; }
+    button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible {
+      outline: 2px solid var(--carolina);
+      outline-offset: 2px;
     }
 
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-mark {
+    .topbar { color: #fff; background: var(--night); border-bottom: 3px solid var(--gold); }
+    .topbar-inner {
       display: grid;
-      width: 38px;
-      aspect-ratio: 1;
-      place-items: center;
-      color: #fffefa;
-      background: var(--green);
-      border-radius: 10px 10px 10px 2px;
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 21px;
+      width: min(1280px, calc(100% - 40px));
+      min-height: 76px;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 30px;
+      margin: 0 auto;
     }
-    .brand-name { font-size: 14px; font-weight: 700; letter-spacing: 0.08em; }
-    .brand-subtitle { margin-top: 2px; color: var(--muted); font-size: 12px; }
-    .local-state { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
-    .local-state::before { width: 7px; height: 7px; content: ""; background: #6d9c73; border-radius: 50%; }
+    .identity { display: grid; gap: 2px; text-decoration: none; }
+    .wordmark { color: var(--gold); font-family: var(--display); font-size: 24px; line-height: 1; }
+    .identity-line { color: #d3d5d7; font-size: 11px; }
+    .primary-nav { display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .nav-link, .menu-toggle {
+      padding: 9px 11px;
+      color: #f0f0ed;
+      background: transparent;
+      border: 0;
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 650;
+      text-decoration: none;
+      transition: background-color 130ms ease, color 130ms ease;
+    }
+    .nav-link:hover, .nav-link[aria-current="page"], .menu-toggle:hover { color: var(--gold); background: var(--night-2); }
+    .today-chip { display: flex; align-items: center; justify-content: flex-end; gap: 8px; white-space: nowrap; }
+    .today-label { color: #bfc3c6; font-size: 10px; text-transform: uppercase; }
+    .today-date { color: #fff; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .game-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 21px;
+      padding: 2px 6px;
+      color: var(--night);
+      background: var(--gold);
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 750;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .menu-toggle { display: none; border: 1px solid #586069; }
 
-    .intro { padding: 30px 0 18px; }
-    .intro-line { display: flex; align-items: baseline; gap: 13px; }
-    h1 {
-      margin: 0;
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 36px;
-      font-weight: 500;
-      line-height: 1.12;
+    .page { width: min(1280px, calc(100% - 40px)); margin: 0 auto; }
+    .page-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 25px 0 10px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-family: var(--display); font-size: 32px; font-weight: 600; line-height: 1.1; }
+    .queue-count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .summary-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 4px 0 11px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
-    .intro-count { color: var(--muted); font-size: 13px; }
+    .summary-total { color: var(--ink); font-weight: 650; }
+    .summary-filter {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      font-size: inherit;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    .summary-filter:hover { color: var(--ink); }
+    .summary-filter[data-decision="draft_for_owner"] { color: var(--ok); }
+    .summary-filter[data-decision="ask_customer"] { color: var(--warn); }
+    .summary-filter[data-decision="escalate_to_owner"] { color: var(--stop); }
+    .summary-filter[data-decision="ignore"] { color: var(--idle); }
 
     .composer {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 176px auto;
+      grid-template-columns: minmax(220px, 1fr) 154px 126px auto;
       align-items: end;
-      gap: 12px;
-      padding: 15px;
+      gap: 10px;
+      margin: 15px 0 8px;
+      padding: 12px;
       background: var(--surface);
       border: 1px solid var(--line);
-      border-left: 3px solid var(--red);
-      box-shadow: var(--shadow);
+      border-left: 4px solid var(--gold);
     }
-    .field { display: grid; gap: 7px; min-width: 0; }
-    .field label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
-    textarea, input[type="date"] {
+    .composer-title { grid-column: 1 / -1; margin: 0 0 1px; font-family: var(--display); font-size: 14px; font-weight: 600; text-transform: uppercase; }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field label, .section-label { color: var(--muted); font-size: 10px; font-weight: 750; text-transform: uppercase; }
+    textarea, input {
       width: 100%;
-      min-height: 43px;
-      padding: 11px 12px;
+      min-height: 38px;
+      padding: 8px 9px;
       color: var(--ink);
-      background: #fbfaf6;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      outline: none;
-    }
-    textarea { height: 43px; min-height: 43px; resize: vertical; }
-    textarea:focus, input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(35, 78, 64, 0.12); }
-    .submit {
-      display: inline-flex;
-      min-height: 43px;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      padding: 0 16px;
-      color: #fffefa;
-      background: var(--green);
-      border: 0;
-      border-radius: 4px;
+      background: #fff;
+      border: 1px solid #bfc0bc;
+      border-radius: 2px;
       font-size: 13px;
-      font-weight: 700;
-      white-space: nowrap;
     }
-    .submit:hover { background: #183e32; }
-    .submit:disabled { opacity: 0.6; cursor: wait; }
-    .submit svg { width: 15px; height: 15px; }
-    .notice { min-height: 19px; margin: 7px 2px 1px; color: var(--muted); font-size: 12px; }
-    .notice.error { color: var(--red); }
+    textarea { height: 38px; min-height: 38px; resize: vertical; }
+    .received-fields { display: grid; grid-template-columns: 1fr; gap: 5px; }
+    .received-fields input[type="time"] { min-height: 32px; padding-block: 5px; }
+    .primary-button, .secondary-button {
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: background-color 130ms ease, border-color 130ms ease;
+    }
+    .primary-button { color: var(--night); background: var(--gold); border-color: #c68e15; }
+    .primary-button:hover { background: #efb533; }
+    .secondary-button { color: var(--ink); background: #fff; }
+    .secondary-button:hover { background: #f0efeb; border-color: #a5a6a2; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .loading { animation: pulse 1.1s ease-in-out infinite alternate; }
+    @keyframes pulse { to { opacity: 0.55; } }
+    .notice { min-height: 18px; margin: 0 2px 5px; color: var(--muted); font-size: 11px; }
+    .notice.error { color: var(--stop); }
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(260px, 0.74fr) minmax(0, 1.55fr);
-      min-height: 440px;
-      margin: 9px 0 44px;
+      grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.62fr);
+      min-height: 445px;
+      margin: 4px 0 28px;
       background: var(--surface);
       border: 1px solid var(--line);
-      box-shadow: var(--shadow);
     }
     .list-pane { min-width: 0; border-right: 1px solid var(--line); }
-    .pane-heading {
-      display: flex;
-      min-height: 53px;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 17px;
-      border-bottom: 1px solid var(--line);
-    }
-    .pane-heading h2 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-    .refresh {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      background: transparent;
-      border: 0;
-      border-radius: 4px;
-    }
-    .refresh:hover { color: var(--green); background: var(--green-soft); }
-    .refresh svg { width: 16px; height: 16px; }
+    .pane-heading { display: flex; min-height: 43px; align-items: center; justify-content: space-between; padding: 0 11px; border-bottom: 1px solid var(--line); }
+    .pane-heading h2 { margin: 0; font-family: var(--display); font-size: 13px; font-weight: 600; text-transform: uppercase; }
+    .refresh-button { padding: 5px 7px; color: var(--carolina-ink); background: transparent; border: 0; font-size: 11px; text-decoration: underline; }
+    .filter-tabs { display: flex; flex-wrap: wrap; gap: 0; padding: 0 8px; border-bottom: 1px solid var(--line); }
+    .filter-tab { min-height: 35px; padding: 0 9px; color: var(--muted); background: transparent; border: 0; border-bottom: 2px solid transparent; font-size: 11px; }
+    .filter-tab:hover { color: var(--ink); }
+    .filter-tab[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--gold); font-weight: 700; }
     .message-list { max-height: 600px; overflow-y: auto; }
     .message-row {
       display: grid;
       width: 100%;
-      gap: 8px;
-      padding: 14px 16px 13px;
+      gap: 6px;
+      padding: 10px 11px 9px;
       text-align: left;
-      background: transparent;
+      background: #fff;
       border: 0;
-      border-bottom: 1px solid #ecece6;
+      border-bottom: 1px solid #e8e6e0;
+      border-left: 3px solid transparent;
+      border-radius: 0;
+      transition: background-color 130ms ease;
     }
-    .message-row:hover { background: #f8f7f1; }
-    .message-row.active { background: #edf2ec; box-shadow: inset 3px 0 var(--green); }
-    .row-top, .row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .row-date { color: var(--muted); font-size: 11px; white-space: nowrap; }
-    .row-title { overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-    .row-snippet { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-    .badge {
-      display: inline-flex;
-      min-height: 22px;
-      align-items: center;
-      padding: 3px 7px;
-      border-radius: 3px;
-      font-size: 10px;
-      font-weight: 700;
-      line-height: 1.25;
-      white-space: nowrap;
-    }
-    .badge.draft_for_owner { color: var(--green); background: var(--green-soft); }
-    .badge.ask_customer { color: var(--amber); background: var(--amber-soft); }
-    .badge.escalate_to_owner { color: var(--red); background: var(--red-soft); }
-    .badge.ignore { color: #656963; background: var(--gray-soft); }
-    .empty-list { padding: 30px 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .message-row:hover { background: #f5f8fa; }
+    .message-row[aria-current="true"] { background: #edf5fa; border-left-color: var(--carolina); }
+    .row-top, .row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+    .row-category { overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .row-time { flex: 0 0 auto; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .row-snippet { display: -webkit-box; overflow: hidden; color: #3f454a; font-size: 12px; line-height: 1.4; line-clamp: 2; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .row-tags { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .decision-badge { display: inline-flex; min-height: 20px; align-items: center; padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 750; line-height: 1.2; white-space: nowrap; }
+    .decision-badge.draft_for_owner { color: #205f3c; background: var(--ok-soft); }
+    .decision-badge.ask_customer { color: #714b08; background: var(--warn-soft); }
+    .decision-badge.escalate_to_owner { color: #8e261d; background: var(--stop-soft); }
+    .decision-badge.ignore { color: #454b50; background: var(--idle-soft); }
+    .game-tag-soft { display: inline-flex; min-height: 19px; align-items: center; padding: 2px 5px; color: var(--night); background: #f6e5b9; border: 1px solid #e4bd60; border-radius: 2px; font-size: 9px; font-weight: 750; white-space: nowrap; }
+    .handled-label { margin-left: auto; color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .empty-list { padding: 14px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
     .detail-pane { min-width: 0; }
-    .detail-content { padding: 25px clamp(18px, 4vw, 38px) 32px; }
-    .empty-detail { display: grid; min-height: 370px; place-items: center; padding: 28px; color: var(--muted); text-align: center; }
-    .empty-detail-mark { display: grid; width: 48px; aspect-ratio: 1; place-items: center; margin: 0 auto 12px; color: var(--green); background: var(--green-soft); border-radius: 50%; }
-    .empty-detail-mark svg { width: 21px; height: 21px; }
-    .empty-detail p { margin: 0; font-size: 13px; }
-    .detail-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-    .detail-date { margin-bottom: 6px; color: var(--muted); font-size: 12px; }
-    .detail-top h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 25px; font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
-    .detail-tags { display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }
-    .high-demand { padding: 4px 8px; color: #8e3d2f; background: #f7e6df; border: 1px solid #e9c9be; border-radius: 3px; font-size: 10px; font-weight: 700; }
-    .section-label { margin: 21px 0 9px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-    .original-message { margin: 0; color: #3e433e; font-size: 14px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .facts { display: grid; grid-template-columns: 1fr 0.7fr 1.5fr; gap: 1px; margin-top: 12px; background: var(--line); border: 1px solid var(--line); }
-    .fact { min-width: 0; padding: 11px 12px; background: #fbfaf6; }
-    .fact-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; }
-    .fact-value { display: block; color: var(--ink); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
-    .reason-box { padding: 12px 14px; background: #f4f3ed; border-left: 2px solid #9b9f8f; color: #464b44; font-size: 13px; line-height: 1.55; }
-    .draft-box { padding: 15px; color: #333a34; background: #f0f5ef; border: 1px solid #dce7dc; font-size: 13px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .draft-empty { color: var(--muted); font-style: italic; }
-    .loading { animation: breathe 1.1s ease-in-out infinite alternate; }
-    @keyframes breathe { to { opacity: 0.45; } }
+    .detail-content { padding: 15px 19px 20px; }
+    .detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 11px; border-bottom: 1px solid var(--line); }
+    .detail-heading h2 { margin: 5px 0 0; font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; }
+    .detail-heading .decision-badge { font-size: 11px; }
+    .detail-meta { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .detail-heading-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .section { margin-top: 13px; }
+    .section-label { margin: 0 0 6px; font-family: var(--display); font-size: 12px; font-weight: 600; }
+    .reason-banner { padding: 9px 10px; color: #74231c; background: var(--stop-soft); border-left: 3px solid var(--stop); font-size: 12px; line-height: 1.45; }
+    .reason-banner.invalid { color: #454b50; background: var(--idle-soft); border-left-color: var(--idle); }
+    .reason-text { margin: 0; color: #30353a; font-size: 12px; line-height: 1.5; }
+    .draft-text { min-height: 48px; padding: 10px; color: #29312d; background: #f7f8f5; border: 1px solid var(--line); font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .draft-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    .facts { display: grid; grid-template-columns: 1fr 0.65fr 1.6fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .fact { min-width: 0; padding: 8px 9px; border-right: 1px solid var(--line); }
+    .fact:last-child { border-right: 0; }
+    .fact-label { display: block; margin-bottom: 3px; color: var(--muted); font-size: 9px; font-weight: 750; text-transform: uppercase; }
+    .fact-value { display: block; color: var(--ink); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+    .original-message { margin: 0; color: #30353a; font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .empty-detail { display: grid; min-height: 370px; align-content: center; justify-items: start; padding: 25px; color: var(--muted); font-size: 13px; }
+    .empty-detail p { max-width: 320px; margin: 0; line-height: 1.55; }
+    .prototype-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 50px; padding: 8px 12px; color: #e2e2df; background: var(--night); font-size: 10px; text-transform: uppercase; }
+    .bar-info-toggle { padding: 5px 0; color: var(--gold); background: transparent; border: 0; font-size: 11px; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; text-transform: none; }
+    .bar-info-panel { padding: 12px; background: var(--surface); border: 1px solid var(--line); border-top: 0; }
+    .bar-info-panel h2 { margin: 0 0 9px; font-family: var(--display); font-size: 14px; text-transform: uppercase; }
+    .bar-info-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 4px 16px; font-size: 12px; }
+    .bar-info-grid dt { color: var(--muted); }
+    .bar-info-grid dd { margin: 0; }
+    .bar-info-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; }
 
-    @media (max-width: 760px) {
-      .shell { width: min(100% - 28px, 620px); }
-      .composer { grid-template-columns: 1fr 145px; }
-      .message-field { grid-column: 1 / -1; }
-      .submit { grid-column: 1 / -1; }
+    @media (max-width: 860px) {
+      .topbar-inner { grid-template-columns: 1fr auto auto; gap: 12px; }
+      .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .primary-nav { display: none; position: absolute; z-index: 2; top: 73px; right: 20px; left: 20px; flex-wrap: wrap; justify-content: flex-start; padding: 7px; background: var(--night-2); border: 1px solid #444a50; }
+      .primary-nav.open { display: flex; }
+      .today-chip { gap: 5px; }
+      .workspace { grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.35fr); }
+    }
+    @media (max-width: 640px) {
+      .topbar-inner, .page { width: calc(100% - 24px); }
+      .topbar-inner { min-height: 68px; gap: 8px; }
+      .wordmark { font-size: 21px; }
+      .identity-line { font-size: 9px; }
+      .today-chip { display: grid; grid-template-columns: auto auto; justify-items: end; gap: 2px 6px; }
+      .today-label { grid-column: 1; }
+      .today-date { grid-column: 2; }
+      .today-chip .game-tag { grid-column: 1 / -1; }
+      .primary-nav { top: 66px; right: 12px; left: 12px; }
+      .page-heading { padding-top: 19px; }
+      h1 { font-size: 29px; }
+      .summary-line { align-items: flex-start; gap: 6px; line-height: 1.7; }
+      .composer { grid-template-columns: minmax(0, 1fr) minmax(105px, 0.7fr); gap: 8px; padding: 9px; }
+      .composer-title, .message-field { grid-column: 1 / -1; }
+      .received-fields { grid-template-columns: 1fr 92px; }
+      .submit-button { grid-column: 1 / -1; }
       .workspace { grid-template-columns: 1fr; }
       .list-pane { border-right: 0; border-bottom: 1px solid var(--line); }
       .message-list { max-height: 270px; }
-      .detail-content { padding: 21px 18px 27px; }
+      .detail-content { padding: 13px 12px 16px; }
+      .detail-heading { flex-direction: column; }
+      .detail-heading-tags { justify-content: flex-start; }
+      .facts { grid-template-columns: 1fr 0.7fr 1.4fr; }
+      .fact { padding: 7px 6px; }
+      .prototype-footer { align-items: flex-start; }
     }
-
-    @media (max-width: 430px) {
-      .shell { width: calc(100% - 22px); }
-      header { padding-top: 16px; }
-      h1 { font-size: 31px; }
-      .local-state { font-size: 11px; }
-      .composer { grid-template-columns: 1fr; padding: 12px; }
-      .message-field, .submit { grid-column: auto; }
-      .intro { padding-top: 24px; }
-      .facts { grid-template-columns: 1fr 1fr; }
-      .fact:last-child { grid-column: 1 / -1; }
-      .detail-top { flex-direction: column; }
-      .detail-tags { justify-content: flex-start; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <div class="brand" aria-label="Event Desk">
-        <div class="brand-mark" aria-hidden="true">E</div>
-        <div>
-          <div class="brand-name">EVENT DESK</div>
-          <div class="brand-subtitle">Inbound, in good order.</div>
-        </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="identity" href="#inbox" aria-label="Event Desk inbox">
+        <span class="wordmark">EVENT DESK</span>
+        <span class="identity-line">Might As Well · Chapel Hill · Staff only</span>
+      </a>
+      <nav class="primary-nav" id="primary-nav" aria-label="Inquiry sections">
+        <button class="nav-link" type="button" data-category="party_group">Parties</button>
+        <button class="nav-link" type="button" data-category="dj_submission">DJs</button>
+        <button class="nav-link" type="button" data-category="charity_org_event">Charity</button>
+        <button class="nav-link" type="button" data-category="all">Events</button>
+      </nav>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+      <div class="today-chip" aria-label="Today's date and game-day status">
+        <span class="today-label">Today</span>
+        <time class="today-date" id="today-date"></time>
+        <span class="game-tag" id="today-game-tag" hidden>Game day</span>
       </div>
-      <div class="local-state">Local inbox</div>
-    </header>
+    </div>
+  </header>
 
-    <section class="intro" aria-labelledby="page-title">
-      <div class="intro-line">
-        <h1 id="page-title">The doorbell.</h1>
-        <span class="intro-count" id="inbox-count">0 messages</span>
-      </div>
-    </section>
+  <main class="page" id="inbox">
+    <div class="page-heading">
+      <h1>INBOX</h1>
+      <span class="queue-count" id="queue-count">0 unhandled</span>
+    </div>
+    <div class="summary-line" id="summary-line" aria-label="Inbox counts"></div>
 
     <form class="composer" id="triage-form">
+      <h2 class="composer-title">NEW INQUIRY</h2>
       <div class="field message-field">
-        <label for="message-input">New inquiry</label>
-        <textarea id="message-input" name="message" placeholder="Paste an email, DM, or event request…" required></textarea>
+        <label for="message-input">Message</label>
+        <textarea id="message-input" name="message" placeholder="Paste an inquiry" required></textarea>
       </div>
       <div class="field">
         <label for="received-date">Received</label>
-        <input id="received-date" name="received_date" type="date" required>
+        <div class="received-fields">
+          <input id="received-date" name="received_date" type="date" required>
+          <input id="received-time" name="received_time" type="time" aria-label="Received time">
+        </div>
       </div>
-      <button class="submit" id="submit-button" type="submit">
-        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Triage inquiry
-      </button>
+      <button class="primary-button submit-button" id="submit-button" type="submit">Triage inquiry</button>
     </form>
     <div class="notice" id="notice" role="status" aria-live="polite"></div>
 
-    <section class="workspace" aria-label="Inbox and selected inquiry">
-      <aside class="list-pane">
+    <section class="workspace" aria-label="Inbox messages and selected inquiry">
+      <aside class="list-pane" aria-labelledby="list-heading">
         <div class="pane-heading">
-          <h2>Inbox</h2>
-          <button class="refresh" id="refresh-button" type="button" aria-label="Refresh inbox" title="Refresh inbox">
-            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 7a6.5 6.5 0 0 0-11.2-1.5L3 8m0 0V4m0 4h4m-3 5a6.5 6.5 0 0 0 11.2 1.5L17 12m0 0v4m0-4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          <h2 id="list-heading">INBOX</h2>
+          <button class="refresh-button" id="refresh-button" type="button">Refresh</button>
         </div>
-        <div class="message-list" id="message-list"></div>
+        <div class="filter-tabs" role="group" aria-label="Filter inbox by category">
+          <button class="filter-tab" type="button" data-category="all" aria-pressed="true">All</button>
+          <button class="filter-tab" type="button" data-category="party_group" aria-pressed="false">Parties</button>
+          <button class="filter-tab" type="button" data-category="dj_submission" aria-pressed="false">DJs</button>
+          <button class="filter-tab" type="button" data-category="charity_org_event" aria-pressed="false">Charity</button>
+          <button class="filter-tab" type="button" data-category="other" aria-pressed="false">Other</button>
+        </div>
+        <div class="message-list" id="message-list" aria-label="Messages"></div>
       </aside>
-      <article class="detail-pane" id="detail-pane" aria-live="polite"></article>
+      <article class="detail-pane" id="detail-pane" aria-live="polite" aria-label="Selected inquiry"></article>
+    </section>
+
+    <footer class="prototype-footer">
+      <span>Unofficial prototype · internal use only</span>
+      <button class="bar-info-toggle" id="bar-info-toggle" type="button" aria-expanded="false" aria-controls="bar-info-panel">Bar info</button>
+    </footer>
+    <section class="bar-info-panel" id="bar-info-panel" hidden aria-labelledby="bar-info-heading">
+      <h2 id="bar-info-heading">Bar info</h2>
+      <dl class="bar-info-grid">
+        <dt>Address</dt><dd>206 West Franklin Street, Chapel Hill, NC 27516</dd>
+        <dt>Phone</dt><dd><a href="tel:+19842343333">(984) 234-3333</a></dd>
+        <dt>Mon–Thu</dt><dd>4:00 PM – 2:00 AM</dd>
+        <dt>Friday</dt><dd>12:00 PM – 2:00 AM</dd>
+        <dt>Saturday</dt><dd>10:00 AM – 2:00 AM</dd>
+        <dt>Sunday</dt><dd>12:00 PM – 2:00 AM</dd>
+      </dl>
+      <p class="bar-info-note">Public information; verify before relying on it. This prototype is not affiliated with the business.</p>
     </section>
   </main>
 
@@ -297,37 +375,27 @@
     const form = document.querySelector("#triage-form");
     const submitButton = document.querySelector("#submit-button");
     const notice = document.querySelector("#notice");
-    const inboxCount = document.querySelector("#inbox-count");
-    let records = [];
-    let selectedId = null;
-
-    const decisionLabels = {
-      draft_for_owner: "Draft for owner",
-      ask_customer: "Ask customer",
-      escalate_to_owner: "Escalate to owner",
-      ignore: "Ignore"
-    };
-
+    const summaryLine = document.querySelector("#summary-line");
+    const queueCount = document.querySelector("#queue-count");
     const categoryLabels = {
       party_group: "Party / group",
       dj_submission: "DJ submission",
       charity_org_event: "Charity event",
       other: "Other"
     };
-
-    function prettyDate(value) {
-      if (!value) return "Not provided";
-      const parsed = new Date(`${value}T12:00:00`);
-      return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat(undefined, {
-        month: "short", day: "numeric", year: "numeric"
-      }).format(parsed);
-    }
-
-    function badge(record) {
-      const decision = record.decision;
-      const label = decisionLabels[decision] || decision;
-      return `<span class="badge ${escapeAttribute(decision)}">${escapeHtml(label)}</span>`;
-    }
+    const decisionLabels = {
+      draft_for_owner: "Draft for owner",
+      ask_customer: "Ask customer",
+      escalate_to_owner: "Escalate to owner",
+      ignore: "Ignore"
+    };
+    const decisionOrder = ["draft_for_owner", "ask_customer", "escalate_to_owner", "ignore"];
+    let records = [];
+    let gameDates = new Set();
+    let handledIds = new Set();
+    let selectedId = null;
+    let categoryFilter = "all";
+    let decisionFilter = null;
 
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -339,116 +407,261 @@
       return String(value ?? "").replace(/[^a-z0-9_-]/gi, "");
     }
 
+    function localDate(value) {
+      if (!value) return "Date not set";
+      const parsed = new Date(`${value}T12:00:00`);
+      return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat(undefined, {
+        month: "short", day: "numeric", year: "numeric"
+      }).format(parsed);
+    }
+
+    function receivedLabel(record) {
+      const dateText = localDate(record.received_date);
+      if (!record.received_at) return dateText;
+      const timestamp = new Date(record.received_at);
+      if (Number.isNaN(timestamp.getTime())) return dateText;
+      const timeText = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(timestamp);
+      return `${dateText} · ${timeText}`;
+    }
+
+    function badge(record) {
+      const decision = record.decision || "ignore";
+      return `<span class="decision-badge ${escapeAttribute(decision)}">${escapeHtml(decisionLabels[decision] || decision)}</span>`;
+    }
+
+    function visibleRecords() {
+      return records.filter(record => {
+        const categoryMatches = categoryFilter === "all" || record.category === categoryFilter;
+        const decisionMatches = !decisionFilter || record.decision === decisionFilter;
+        return categoryMatches && decisionMatches;
+      });
+    }
+
+    function renderSummary() {
+      const counts = Object.fromEntries(decisionOrder.map(decision => [
+        decision,
+        records.filter(record => record.decision === decision).length
+      ]));
+      const summaryParts = decisionOrder.map(decision =>
+        `<button class="summary-filter" type="button" data-decision="${decision}"><span>${counts[decision]}</span> ${decisionLabels[decision].toLowerCase()}</button>`
+      );
+      summaryLine.innerHTML = `<span class="summary-total">${records.length} ${records.length === 1 ? "message" : "messages"}</span><span aria-hidden="true">·</span>${summaryParts.join('<span aria-hidden="true">·</span>')}`;
+      summaryLine.querySelectorAll("[data-decision]").forEach(button => {
+        button.setAttribute("aria-pressed", String(decisionFilter === button.dataset.decision));
+        button.addEventListener("click", () => {
+          decisionFilter = decisionFilter === button.dataset.decision ? null : button.dataset.decision;
+          render();
+        });
+      });
+    }
+
+    function renderHeaderStatus() {
+      const now = new Date();
+      const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+      const todayLabel = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(now);
+      document.querySelector("#today-date").textContent = todayLabel;
+      document.querySelector("#today-game-tag").hidden = !gameDates.has(today);
+    }
+
+    function renderFilters() {
+      document.querySelectorAll("[data-category]").forEach(button => {
+        const active = button.dataset.category === categoryFilter;
+        button.setAttribute("aria-current", active ? "page" : "false");
+        if (button.classList.contains("filter-tab")) button.setAttribute("aria-pressed", String(active));
+      });
+    }
+
     function renderList() {
-      inboxCount.textContent = `${records.length} ${records.length === 1 ? "message" : "messages"}`;
+      const unhandled = records.filter(record => !handledIds.has(String(record.id))).length;
+      queueCount.textContent = `${unhandled} unhandled`;
+      document.title = unhandled ? `(${unhandled}) Event Desk` : "Event Desk";
+      const filtered = visibleRecords();
       if (!records.length) {
-        messageList.innerHTML = '<div class="empty-list">Nothing in the inbox yet. New inquiries will land here after triage.</div>';
+        messageList.innerHTML = '<p class="empty-list">Nothing in the inbox yet. New inquiries will land here after triage.</p>';
         renderDetail(null);
         return;
       }
-
-      if (!records.some(record => record.id === selectedId)) selectedId = records[0].id;
-      messageList.innerHTML = records.map(record => {
-        const title = record.category ? categoryLabels[record.category] || record.category : "Inquiry";
-        return `<button class="message-row ${record.id === selectedId ? "active" : ""}" type="button" data-id="${escapeAttribute(record.id)}">
-          <span class="row-top"><span class="row-title">${escapeHtml(title)}</span><span class="row-date">${escapeHtml(prettyDate(record.received_date))}</span></span>
+      if (!filtered.length) {
+        messageList.innerHTML = '<p class="empty-list">No inquiries match this filter.</p>';
+        renderDetail(null);
+        return;
+      }
+      if (!filtered.some(record => String(record.id) === String(selectedId))) selectedId = filtered[0].id;
+      messageList.innerHTML = filtered.map(record => {
+        const isHandled = handledIds.has(String(record.id));
+        const gameTag = record.high_demand_date ? '<span class="game-tag-soft">Game day</span>' : "";
+        return `<button class="message-row" type="button" data-id="${escapeAttribute(record.id)}" aria-current="${String(record.id) === String(selectedId)}">
+          <span class="row-top"><span class="row-category">${escapeHtml(categoryLabels[record.category] || "Inquiry")}</span><time class="row-time">${escapeHtml(receivedLabel(record))}</time></span>
           <span class="row-snippet">${escapeHtml(record.message)}</span>
-          <span class="row-bottom">${badge(record)}<span class="row-date">${record.high_demand_date ? "Game day" : ""}</span></span>
+          <span class="row-bottom"><span class="row-tags">${badge(record)}${gameTag}</span>${isHandled ? '<span class="handled-label">Handled</span>' : ""}</span>
         </button>`;
       }).join("");
       messageList.querySelectorAll(".message-row").forEach(button => {
         button.addEventListener("click", () => {
           selectedId = button.dataset.id;
-          renderList();
+          render();
         });
       });
-      renderDetail(records.find(record => record.id === selectedId));
+      renderDetail(filtered.find(record => String(record.id) === String(selectedId)));
     }
 
     function renderDetail(record) {
       if (!record) {
-        detailPane.innerHTML = `<div class="empty-detail"><div><div class="empty-detail-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5 12 13l8-6.5M5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11A1.5 1.5 0 0 1 5.5 5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p>Select an inquiry to see its triage and reply draft.</p></div></div>`;
+        detailPane.innerHTML = '<div class="empty-detail"><p>Select an inquiry to see its triage and reply draft.</p></div>';
         return;
       }
       const details = record.details || {};
-      const createdDate = record.created_at ? new Date(record.created_at) : null;
-      const receivedText = createdDate && !Number.isNaN(createdDate.getTime())
-        ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(createdDate)
-        : prettyDate(record.received_date);
+      const invalid = record.reason === "model output invalid";
+      const escalated = record.decision === "escalate_to_owner";
+      const reasonHtml = invalid
+        ? `<div class="reason-banner invalid">The agent could not read this one. Handle it by hand. ${escapeHtml(record.reason)}</div>`
+        : escalated
+          ? `<div class="reason-banner"><strong>Needs a person.</strong> ${escapeHtml(record.reason)}</div>`
+          : `<p class="reason-text">${escapeHtml(record.reason)}</p>`;
+      const isHandled = handledIds.has(String(record.id));
+      const draft = record.draft_reply || "";
       detailPane.innerHTML = `<div class="detail-content">
-        <div class="detail-top">
-          <div><div class="detail-date">Received ${escapeHtml(receivedText)}</div><h2>${escapeHtml(categoryLabels[record.category] || "Inquiry")}</h2></div>
-          <div class="detail-tags">${badge(record)}${record.high_demand_date ? '<span class="high-demand">HIGH-DEMAND DATE</span>' : ""}</div>
+        <div class="detail-heading">
+          <div>${badge(record)}<h2>${escapeHtml(categoryLabels[record.category] || "Inquiry")}</h2><div class="detail-meta">Received ${escapeHtml(receivedLabel(record))}</div></div>
+          <div class="detail-heading-tags">${record.high_demand_date ? '<span class="game-tag-soft">HIGH-DEMAND DATE</span>' : ""}${isHandled ? '<span class="handled-label">Handled</span>' : ""}</div>
         </div>
-        <div class="section-label">Original message</div>
-        <p class="original-message">${escapeHtml(record.message)}</p>
-        <div class="section-label">Pulled details</div>
-        <div class="facts">
+        <section class="section"><h3 class="section-label">WHY THIS DECISION</h3>${reasonHtml}</section>
+        <section class="section"><h3 class="section-label">REPLY DRAFT</h3><div class="draft-text ${draft ? "" : "draft-empty"}" id="draft-text">${escapeHtml(draft || "No reply draft for this inquiry.")}</div>
+          <div class="draft-actions"><button class="secondary-button" id="copy-draft" type="button" ${draft ? "" : "disabled"}>Copy draft</button><button class="secondary-button" id="toggle-handled" type="button">${isHandled ? "Mark unhandled" : "Mark handled"}</button></div>
+        </section>
+        <section class="section"><h3 class="section-label">PULLED DETAILS</h3><div class="facts">
           <div class="fact"><span class="fact-label">Date</span><span class="fact-value">${escapeHtml(details.date || "Not specified")}</span></div>
           <div class="fact"><span class="fact-label">Headcount</span><span class="fact-value">${escapeHtml(details.headcount ?? "Not specified")}</span></div>
           <div class="fact"><span class="fact-label">Ask</span><span class="fact-value">${escapeHtml(details.ask || "Not specified")}</span></div>
-        </div>
-        <div class="section-label">Why this decision</div>
-        <div class="reason-box">${escapeHtml(record.reason)}</div>
-        <div class="section-label">Reply draft</div>
-        <div class="draft-box ${record.draft_reply ? "" : "draft-empty"}">${escapeHtml(record.draft_reply || "No reply draft for this inquiry.")}</div>
+        </div></section>
+        <section class="section"><h3 class="section-label">ORIGINAL MESSAGE</h3><p class="original-message">${escapeHtml(record.message)}</p></section>
       </div>`;
+
+      const copyButton = detailPane.querySelector("#copy-draft");
+      if (copyButton) copyButton.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(draft);
+          notice.textContent = "Draft copied.";
+          notice.classList.remove("error");
+        } catch {
+          notice.textContent = "Could not copy the draft. Select and copy it manually.";
+          notice.classList.add("error");
+        }
+      });
+      detailPane.querySelector("#toggle-handled")?.addEventListener("click", () => {
+        const id = String(record.id);
+        if (handledIds.has(id)) handledIds.delete(id);
+        else handledIds.add(id);
+        render();
+      });
+    }
+
+    function render() {
+      renderSummary();
+      renderFilters();
+      renderList();
+      renderHeaderStatus();
     }
 
     async function loadInbox() {
+      notice.textContent = "";
+      notice.classList.remove("error");
       try {
         const response = await fetch("/inbox");
         if (!response.ok) throw new Error("Inbox could not be loaded.");
         records = await response.json();
-        renderList();
       } catch (error) {
         notice.textContent = error.message;
         notice.classList.add("error");
       }
+      try {
+        const response = await fetch("/game-days");
+        if (response.ok) gameDates = new Set(await response.json());
+      } catch {
+        gameDates = new Set();
+      }
+      render();
     }
+
+    function setCategoryFilter(category) {
+      categoryFilter = category;
+      decisionFilter = null;
+      document.querySelector("#primary-nav").classList.remove("open");
+      document.querySelector("#menu-toggle").setAttribute("aria-expanded", "false");
+      render();
+    }
+
+    document.querySelectorAll("[data-category]").forEach(button => {
+      button.addEventListener("click", () => setCategoryFilter(button.dataset.category));
+    });
+    document.querySelector("#refresh-button").addEventListener("click", loadInbox);
+    document.querySelector("#menu-toggle").addEventListener("click", event => {
+      const nav = document.querySelector("#primary-nav");
+      const isOpen = nav.classList.toggle("open");
+      event.currentTarget.setAttribute("aria-expanded", String(isOpen));
+    });
+    document.querySelector("#bar-info-toggle").addEventListener("click", event => {
+      const panel = document.querySelector("#bar-info-panel");
+      panel.hidden = !panel.hidden;
+      event.currentTarget.setAttribute("aria-expanded", String(!panel.hidden));
+    });
 
     form.addEventListener("submit", async event => {
       event.preventDefault();
       const message = document.querySelector("#message-input").value.trim();
       const receivedDate = document.querySelector("#received-date").value;
+      const receivedTime = document.querySelector("#received-time").value;
       if (!message || !receivedDate) return;
+      const receivedAt = receivedTime
+        ? new Date(`${receivedDate}T${receivedTime}`).toISOString()
+        : null;
       submitButton.disabled = true;
       submitButton.classList.add("loading");
-      submitButton.lastChild.textContent = " Working…";
+      submitButton.textContent = "Working…";
       notice.textContent = "Sorting the inquiry…";
       notice.classList.remove("error");
       try {
         const response = await fetch("/triage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message, received_date: receivedDate })
+          body: JSON.stringify({ message, received_date: receivedDate, received_at: receivedAt })
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.detail || "Triage could not be completed.");
         records.unshift(result);
         selectedId = result.id;
-        renderList();
+        categoryFilter = "all";
+        decisionFilter = null;
+        render();
         document.querySelector("#message-input").value = "";
-        notice.textContent = result.high_demand_date
-          ? "Filed. This date matches the game-day calendar."
-          : "Filed to the inbox.";
+        notice.textContent = result.high_demand_date ? "Filed. This date matches the game-day calendar." : "Filed to the inbox.";
       } catch (error) {
         notice.textContent = error.message;
         notice.classList.add("error");
       } finally {
         submitButton.disabled = false;
         submitButton.classList.remove("loading");
-        submitButton.lastChild.textContent = " Triage inquiry";
+        submitButton.textContent = "Triage inquiry";
       }
     });
 
-    document.querySelector("#refresh-button").addEventListener("click", loadInbox);
-    const today = new Date();
-    document.querySelector("#received-date").value = [
-      today.getFullYear(),
-      String(today.getMonth() + 1).padStart(2, "0"),
-      String(today.getDate()).padStart(2, "0")
-    ].join("-");
+    document.addEventListener("keydown", event => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      const items = visibleRecords();
+      if (!items.length) return;
+      event.preventDefault();
+      const currentIndex = items.findIndex(record => String(record.id) === String(selectedId));
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = (currentIndex + direction + items.length) % items.length;
+      selectedId = items[nextIndex].id;
+      render();
+    });
+
+    const now = new Date();
+    const pad = value => String(value).padStart(2, "0");
+    document.querySelector("#received-date").value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    document.querySelector("#received-time").value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     loadInbox();
   </script>
 </body>

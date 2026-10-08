@@ -42,6 +42,7 @@ class Decision(str, Enum):
 class TriageRequest(BaseModel):
     message: str = Field(min_length=1)
     received_date: date
+    received_at: datetime | None = None
 
     @field_validator("message")
     @classmethod
@@ -76,6 +77,7 @@ class TriageRecord(TriageResult):
     id: str
     message: str
     received_date: date
+    received_at: datetime | None = None
     high_demand_date: bool
     created_at: datetime
 
@@ -309,6 +311,11 @@ def inbox() -> list[dict]:
         raise HTTPException(status_code=500, detail="Could not read inbox.json") from error
 
 
+@app.get("/game-days", response_model=list[str])
+def list_game_days() -> list[str]:
+    return sorted(game_date.isoformat() for game_date in game_dates())
+
+
 @app.post("/triage", response_model=TriageRecord)
 def triage(request: TriageRequest) -> TriageRecord:
     try:
@@ -321,6 +328,7 @@ def triage(request: TriageRequest) -> TriageRecord:
             id=str(uuid4()),
             message=request.message,
             received_date=request.received_date,
+            received_at=request.received_at,
             high_demand_date=high_demand_date,
             created_at=datetime.now(timezone.utc),
         )

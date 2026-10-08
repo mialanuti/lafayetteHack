@@ -56,6 +56,16 @@ class DateMatchingTests(unittest.TestCase):
             with patch.object(main, "GAME_DAYS_PATH", csv_path):
                 self.assertEqual(main.game_dates(), {date(2026, 11, 14)})
 
+    def test_game_day_endpoint_returns_sorted_iso_dates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            csv_path = Path(directory) / "game_days.csv"
+            csv_path.write_text(
+                "date,event\n2026-11-14,Home game\n2026-10-24,Home game\n",
+                encoding="utf-8",
+            )
+            with patch.object(main, "GAME_DAYS_PATH", csv_path):
+                self.assertEqual(main.list_game_days(), ["2026-10-24", "2026-11-14"])
+
 
 class TriageTests(unittest.TestCase):
     def test_business_context_has_no_merge_conflict_markers(self):
@@ -184,10 +194,12 @@ class TriageTests(unittest.TestCase):
                     main.TriageRequest(
                         message="Can we reserve a table this Saturday for 12?",
                         received_date=date(2026, 10, 8),
+                        received_at="2026-10-08T21:14:00",
                     )
                 )
 
             self.assertTrue(record.high_demand_date)
+            self.assertEqual(record.received_at.isoformat(), "2026-10-08T21:14:00")
             self.assertTrue(call_model.call_args.args[2])
             self.assertEqual(json.loads(inbox.read_text(encoding="utf-8"))[0]["id"], record.id)
 
