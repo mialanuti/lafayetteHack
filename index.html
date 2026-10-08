@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2ec">
+  <title>Event Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f2ec;
+      --surface: #fffefa;
+      --ink: #212623;
+      --muted: #777c75;
+      --line: #ddded6;
+      --green: #234e40;
+      --green-soft: #e0eee7;
+      --red: #b94937;
+      --red-soft: #f5e3de;
+      --amber: #95631b;
+      --amber-soft: #f5ecd7;
+      --gray-soft: #e9e9e4;
+      --shadow: 0 16px 40px rgba(35, 45, 38, 0.07);
+      font-family: "DM Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background-color: var(--paper);
+      background-image: radial-gradient(rgba(35, 78, 64, 0.055) 0.7px, transparent 0.7px);
+      background-size: 15px 15px;
+    }
+
+    button, textarea, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 0 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      aspect-ratio: 1;
+      place-items: center;
+      color: #fffefa;
+      background: var(--green);
+      border-radius: 10px 10px 10px 2px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 21px;
+    }
+    .brand-name { font-size: 14px; font-weight: 700; letter-spacing: 0.08em; }
+    .brand-subtitle { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .local-state { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .local-state::before { width: 7px; height: 7px; content: ""; background: #6d9c73; border-radius: 50%; }
+
+    .intro { padding: 30px 0 18px; }
+    .intro-line { display: flex; align-items: baseline; gap: 13px; }
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.12;
+    }
+    .intro-count { color: var(--muted); font-size: 13px; }
+
+    .composer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 176px auto;
+      align-items: end;
+      gap: 12px;
+      padding: 15px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--red);
+      box-shadow: var(--shadow);
+    }
+    .field { display: grid; gap: 7px; min-width: 0; }
+    .field label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    textarea, input[type="date"] {
+      width: 100%;
+      min-height: 43px;
+      padding: 11px 12px;
+      color: var(--ink);
+      background: #fbfaf6;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      outline: none;
+    }
+    textarea { height: 43px; min-height: 43px; resize: vertical; }
+    textarea:focus, input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(35, 78, 64, 0.12); }
+    .submit {
+      display: inline-flex;
+      min-height: 43px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 16px;
+      color: #fffefa;
+      background: var(--green);
+      border: 0;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .submit:hover { background: #183e32; }
+    .submit:disabled { opacity: 0.6; cursor: wait; }
+    .submit svg { width: 15px; height: 15px; }
+    .notice { min-height: 19px; margin: 7px 2px 1px; color: var(--muted); font-size: 12px; }
+    .notice.error { color: var(--red); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.74fr) minmax(0, 1.55fr);
+      min-height: 440px;
+      margin: 9px 0 44px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .list-pane { min-width: 0; border-right: 1px solid var(--line); }
+    .pane-heading {
+      display: flex;
+      min-height: 53px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 17px;
+      border-bottom: 1px solid var(--line);
+    }
+    .pane-heading h2 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .refresh {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 4px;
+    }
+    .refresh:hover { color: var(--green); background: var(--green-soft); }
+    .refresh svg { width: 16px; height: 16px; }
+    .message-list { max-height: 600px; overflow-y: auto; }
+    .message-row {
+      display: grid;
+      width: 100%;
+      gap: 8px;
+      padding: 14px 16px 13px;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid #ecece6;
+    }
+    .message-row:hover { background: #f8f7f1; }
+    .message-row.active { background: #edf2ec; box-shadow: inset 3px 0 var(--green); }
+    .row-top, .row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .row-date { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .row-title { overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .row-snippet { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .badge {
+      display: inline-flex;
+      min-height: 22px;
+      align-items: center;
+      padding: 3px 7px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .badge.draft_for_owner { color: var(--green); background: var(--green-soft); }
+    .badge.ask_customer { color: var(--amber); background: var(--amber-soft); }
+    .badge.escalate_to_owner { color: var(--red); background: var(--red-soft); }
+    .badge.ignore { color: #656963; background: var(--gray-soft); }
+    .empty-list { padding: 30px 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .detail-pane { min-width: 0; }
+    .detail-content { padding: 25px clamp(18px, 4vw, 38px) 32px; }
+    .empty-detail { display: grid; min-height: 370px; place-items: center; padding: 28px; color: var(--muted); text-align: center; }
+    .empty-detail-mark { display: grid; width: 48px; aspect-ratio: 1; place-items: center; margin: 0 auto 12px; color: var(--green); background: var(--green-soft); border-radius: 50%; }
+    .empty-detail-mark svg { width: 21px; height: 21px; }
+    .empty-detail p { margin: 0; font-size: 13px; }
+    .detail-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .detail-date { margin-bottom: 6px; color: var(--muted); font-size: 12px; }
+    .detail-top h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 25px; font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
+    .detail-tags { display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }
+    .high-demand { padding: 4px 8px; color: #8e3d2f; background: #f7e6df; border: 1px solid #e9c9be; border-radius: 3px; font-size: 10px; font-weight: 700; }
+    .section-label { margin: 21px 0 9px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .original-message { margin: 0; color: #3e433e; font-size: 14px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .facts { display: grid; grid-template-columns: 1fr 0.7fr 1.5fr; gap: 1px; margin-top: 12px; background: var(--line); border: 1px solid var(--line); }
+    .fact { min-width: 0; padding: 11px 12px; background: #fbfaf6; }
+    .fact-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .fact-value { display: block; color: var(--ink); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+    .reason-box { padding: 12px 14px; background: #f4f3ed; border-left: 2px solid #9b9f8f; color: #464b44; font-size: 13px; line-height: 1.55; }
+    .draft-box { padding: 15px; color: #333a34; background: #f0f5ef; border: 1px solid #dce7dc; font-size: 13px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .draft-empty { color: var(--muted); font-style: italic; }
+    .loading { animation: breathe 1.1s ease-in-out infinite alternate; }
+    @keyframes breathe { to { opacity: 0.45; } }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 28px, 620px); }
+      .composer { grid-template-columns: 1fr 145px; }
+      .message-field { grid-column: 1 / -1; }
+      .submit { grid-column: 1 / -1; }
+      .workspace { grid-template-columns: 1fr; }
+      .list-pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .message-list { max-height: 270px; }
+      .detail-content { padding: 21px 18px 27px; }
+    }
+
+    @media (max-width: 430px) {
+      .shell { width: calc(100% - 22px); }
+      header { padding-top: 16px; }
+      h1 { font-size: 31px; }
+      .local-state { font-size: 11px; }
+      .composer { grid-template-columns: 1fr; padding: 12px; }
+      .message-field, .submit { grid-column: auto; }
+      .intro { padding-top: 24px; }
+      .facts { grid-template-columns: 1fr 1fr; }
+      .fact:last-child { grid-column: 1 / -1; }
+      .detail-top { flex-direction: column; }
+      .detail-tags { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand" aria-label="Event Desk">
+        <div class="brand-mark" aria-hidden="true">E</div>
+        <div>
+          <div class="brand-name">EVENT DESK</div>
+          <div class="brand-subtitle">Inbound, in good order.</div>
+        </div>
+      </div>
+      <div class="local-state">Local inbox</div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-line">
+        <h1 id="page-title">The doorbell.</h1>
+        <span class="intro-count" id="inbox-count">0 messages</span>
+      </div>
+    </section>
+
+    <form class="composer" id="triage-form">
+      <div class="field message-field">
+        <label for="message-input">New inquiry</label>
+        <textarea id="message-input" name="message" placeholder="Paste an email, DM, or event request…" required></textarea>
+      </div>
+      <div class="field">
+        <label for="received-date">Received</label>
+        <input id="received-date" name="received_date" type="date" required>
+      </div>
+      <button class="submit" id="submit-button" type="submit">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Triage inquiry
+      </button>
+    </form>
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+    <section class="workspace" aria-label="Inbox and selected inquiry">
+      <aside class="list-pane">
+        <div class="pane-heading">
+          <h2>Inbox</h2>
+          <button class="refresh" id="refresh-button" type="button" aria-label="Refresh inbox" title="Refresh inbox">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 7a6.5 6.5 0 0 0-11.2-1.5L3 8m0 0V4m0 4h4m-3 5a6.5 6.5 0 0 0 11.2 1.5L17 12m0 0v4m0-4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="message-list" id="message-list"></div>
+      </aside>
+      <article class="detail-pane" id="detail-pane" aria-live="polite"></article>
+    </section>
+  </main>
+
+  <script>
+    const messageList = document.querySelector("#message-list");
+    const detailPane = document.querySelector("#detail-pane");
+    const form = document.querySelector("#triage-form");
+    const submitButton = document.querySelector("#submit-button");
+    const notice = document.querySelector("#notice");
+    const inboxCount = document.querySelector("#inbox-count");
+    let records = [];
+    let selectedId = null;
+
+    const decisionLabels = {
+      draft_for_owner: "Draft for owner",
+      ask_customer: "Ask customer",
+      escalate_to_owner: "Escalate to owner",
+      ignore: "Ignore"
+    };
+
+    const categoryLabels = {
+      party_group: "Party / group",
+      dj_submission: "DJ submission",
+      charity_org_event: "Charity event",
+      other: "Other"
+    };
+
+    function prettyDate(value) {
+      if (!value) return "Not provided";
+      const parsed = new Date(`${value}T12:00:00`);
+      return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat(undefined, {
+        month: "short", day: "numeric", year: "numeric"
+      }).format(parsed);
+    }
+
+    function badge(record) {
+      const decision = record.decision;
+      const label = decisionLabels[decision] || decision;
+      return `<span class="badge ${escapeAttribute(decision)}">${escapeHtml(label)}</span>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+    }
+
+    function escapeAttribute(value) {
+      return String(value ?? "").replace(/[^a-z0-9_-]/gi, "");
+    }
+
+    function renderList() {
+      inboxCount.textContent = `${records.length} ${records.length === 1 ? "message" : "messages"}`;
+      if (!records.length) {
+        messageList.innerHTML = '<div class="empty-list">Nothing in the inbox yet. New inquiries will land here after triage.</div>';
+        renderDetail(null);
+        return;
+      }
+
+      if (!records.some(record => record.id === selectedId)) selectedId = records[0].id;
+      messageList.innerHTML = records.map(record => {
+        const title = record.category ? categoryLabels[record.category] || record.category : "Inquiry";
+        return `<button class="message-row ${record.id === selectedId ? "active" : ""}" type="button" data-id="${escapeAttribute(record.id)}">
+          <span class="row-top"><span class="row-title">${escapeHtml(title)}</span><span class="row-date">${escapeHtml(prettyDate(record.received_date))}</span></span>
+          <span class="row-snippet">${escapeHtml(record.message)}</span>
+          <span class="row-bottom">${badge(record)}<span class="row-date">${record.high_demand_date ? "Game day" : ""}</span></span>
+        </button>`;
+      }).join("");
+      messageList.querySelectorAll(".message-row").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedId = button.dataset.id;
+          renderList();
+        });
+      });
+      renderDetail(records.find(record => record.id === selectedId));
+    }
+
+    function renderDetail(record) {
+      if (!record) {
+        detailPane.innerHTML = `<div class="empty-detail"><div><div class="empty-detail-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5 12 13l8-6.5M5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11A1.5 1.5 0 0 1 5.5 5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p>Select an inquiry to see its triage and reply draft.</p></div></div>`;
+        return;
+      }
+      const details = record.details || {};
+      const createdDate = record.created_at ? new Date(record.created_at) : null;
+      const receivedText = createdDate && !Number.isNaN(createdDate.getTime())
+        ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(createdDate)
+        : prettyDate(record.received_date);
+      detailPane.innerHTML = `<div class="detail-content">
+        <div class="detail-top">
+          <div><div class="detail-date">Received ${escapeHtml(receivedText)}</div><h2>${escapeHtml(categoryLabels[record.category] || "Inquiry")}</h2></div>
+          <div class="detail-tags">${badge(record)}${record.high_demand_date ? '<span class="high-demand">HIGH-DEMAND DATE</span>' : ""}</div>
+        </div>
+        <div class="section-label">Original message</div>
+        <p class="original-message">${escapeHtml(record.message)}</p>
+        <div class="section-label">Pulled details</div>
+        <div class="facts">
+          <div class="fact"><span class="fact-label">Date</span><span class="fact-value">${escapeHtml(details.date || "Not specified")}</span></div>
+          <div class="fact"><span class="fact-label">Headcount</span><span class="fact-value">${escapeHtml(details.headcount ?? "Not specified")}</span></div>
+          <div class="fact"><span class="fact-label">Ask</span><span class="fact-value">${escapeHtml(details.ask || "Not specified")}</span></div>
+        </div>
+        <div class="section-label">Why this decision</div>
+        <div class="reason-box">${escapeHtml(record.reason)}</div>
+        <div class="section-label">Reply draft</div>
+        <div class="draft-box ${record.draft_reply ? "" : "draft-empty"}">${escapeHtml(record.draft_reply || "No reply draft for this inquiry.")}</div>
+      </div>`;
+    }
+
+    async function loadInbox() {
+      try {
+        const response = await fetch("/inbox");
+        if (!response.ok) throw new Error("Inbox could not be loaded.");
+        records = await response.json();
+        renderList();
+      } catch (error) {
+        notice.textContent = error.message;
+        notice.classList.add("error");
+      }
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const message = document.querySelector("#message-input").value.trim();
+      const receivedDate = document.querySelector("#received-date").value;
+      if (!message || !receivedDate) return;
+      submitButton.disabled = true;
+      submitButton.classList.add("loading");
+      submitButton.lastChild.textContent = " Working…";
+      notice.textContent = "Sorting the inquiry…";
+      notice.classList.remove("error");
+      try {
+        const response = await fetch("/triage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, received_date: receivedDate })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.detail || "Triage could not be completed.");
+        records.unshift(result);
+        selectedId = result.id;
+        renderList();
+        document.querySelector("#message-input").value = "";
+        notice.textContent = result.high_demand_date
+          ? "Filed. This date matches the game-day calendar."
+          : "Filed to the inbox.";
+      } catch (error) {
+        notice.textContent = error.message;
+        notice.classList.add("error");
+      } finally {
+        submitButton.disabled = false;
+        submitButton.classList.remove("loading");
+        submitButton.lastChild.textContent = " Triage inquiry";
+      }
+    });
+
+    document.querySelector("#refresh-button").addEventListener("click", loadInbox);
+    const today = new Date();
+    document.querySelector("#received-date").value = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0")
+    ].join("-");
+    loadInbox();
+  </script>
+</body>
+</html>
