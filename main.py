@@ -3,7 +3,7 @@ import json
 import os
 import re
 import threading
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from uuid import uuid4
@@ -83,6 +83,21 @@ class TriageRecord(TriageResult):
 app = FastAPI(title="Event Desk")
 
 
+SYSTEM_PROMPT = """You triage inbound inquiries for a bar.
+
+Business facts:
+- Use only business.md as the source of business-specific facts. The business_context in the user message is its contents. Do not use general knowledge, prior knowledge, or assumptions.
+- Anything not explicitly stated in business.md about prices, minimums, deposits, DJ pay, availability, capacity, fees, cover waivers, or age policy is UNKNOWN. Never answer or infer an unknown fact. Use decision ask_customer or escalate_to_owner; ask_customer is only for clarification the customer can provide, otherwise escalate_to_owner.
+- Never promise a date, confirm a booking, or hold a table.
+
+Escalation rules:
+- If high_demand_date is true, decision must be escalate_to_owner. The one-line reason must say that the high-demand date requires owner review.
+- If the message mentions anyone under 21 or contains a complaint, decision must be escalate_to_owner.
+- Draft replies must not quote prices or confirm availability. Every draft_reply must begin with "DRAFT FOR OWNER APPROVAL:".
+
+Return only valid JSON with exactly these fields: category (party_group, dj_submission, charity_org_event, other), details (object with date, headcount, ask; use null when unknown), decision (draft_for_owner, ask_customer, escalate_to_owner, ignore), reason (one line), and draft_reply (string)."""
+
+
 DATE_PATTERNS = (
     re.compile(r"\b\d{4}-\d{1,2}-\d{1,2}\b"),
     re.compile(r"(?<![\d/-])\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?(?![\d/-])"),
@@ -93,6 +108,17 @@ DATE_PATTERNS = (
         r"(?:,?\s+\d{4})?\b",
         re.IGNORECASE,
     ),
+)
+WEEKDAYS = {
+    name.lower(): index
+    for index, name in enumerate(
+        ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    )
+}
+RELATIVE_WEEKDAY_PATTERN = re.compile(
+    r"\b(?P<relative>this|next)\s+"
+    r"(?P<weekday>Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
+    re.IGNORECASE,
 )
 DATE_FORMATS = (
     "%Y-%m-%d",
@@ -125,11 +151,18 @@ def parse_mentioned_date(value: str, default_year: int) -> date | None:
     return None
 
 
-def dates_mentioned(message: str, default_year: int) -> set[date]:
+def dates_mentioned(message: str, received_date: date) -> set[date]:
     found: set[date] = set()
+    for match in RELATIVE_WEEKDAY_PATTERN.finditer(message):
+        weekday = WEEKDAYS[match.group("weekday").lower()]
+        days_ahead = (weekday - received_date.weekday()) % 7
+        if match.group("relative").lower() == "next":
+            days_ahead += 7
+        found.add(received_date + timedelta(days=days_ahead))
+
     for pattern in DATE_PATTERNS:
         for match in pattern.finditer(message):
-            parsed = parse_mentioned_date(match.group(0), default_year)
+            parsed = parse_mentioned_date(match.group(0), received_date.year)
             if parsed is not None:
                 found.add(parsed)
     return found
@@ -197,14 +230,7 @@ def call_model(message: str, received_date: date, high_demand_date: bool) -> Tri
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        "Triage inbound inquiries for a bar. Return only JSON with exactly these "
-                        "fields: category (party_group, dj_submission, charity_org_event, other), "
-                        "details (object with date, headcount, ask; use null when unknown), "
-                        "decision (draft_for_owner, ask_customer, escalate_to_owner, ignore), "
-                        "reason (one line), and draft_reply (string). Do not claim a booking is "
-                        "confirmed. Use the business context and the supplied high-demand flag."
-                    ),
+                    "content": SYSTEM_PROMPT,
                 },
                 {
                     "role": "user",
@@ -248,7 +274,7 @@ def inbox() -> list[dict]:
 def triage(request: TriageRequest) -> TriageRecord:
     try:
         high_demand_date = bool(
-            dates_mentioned(request.message, request.received_date.year) & game_dates()
+            dates_mentioned(request.message, request.received_date) & game_dates()
         )
         result = call_model(request.message, request.received_date, high_demand_date)
         record = TriageRecord(
