@@ -58,6 +58,11 @@ class DateMatchingTests(unittest.TestCase):
 
 
 class TriageTests(unittest.TestCase):
+    def test_business_context_has_no_merge_conflict_markers(self):
+        business_context = main.BUSINESS_PATH.read_text(encoding="utf-8")
+
+        self.assertNotRegex(business_context, r"(?m)^(<<<<<<<|=======|>>>>>>>)")
+
     def test_model_receives_required_safety_prompt(self):
         captured_request = {}
         completion = SimpleNamespace(

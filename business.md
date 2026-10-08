@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-# Bar business context
-
-Replace this file with the bar's confirmed policies, event capacity, booking process,
-hours, age requirements, pricing, and owner contact preferences. The triage assistant
-must not invent any of these details or confirm a booking.
-
-Until details are added, treat requests that require a policy or commitment as needing
-owner review. Ask the customer for missing information when that is the useful next step.
-=======
 # Might As Well Bar & Grill (Chapel Hill)
 
 Public facts only. Compiled Oct 8, 2026 from public web pages. This file is not from the owner and has not been reviewed by the business. We do not work with this business.
@@ -65,4 +55,3 @@ The agent must never guess these. Reply that the owner or manager will confirm, 
 - Every event or booking inquiry is handed to a person. The draft reply asks only for missing details (date, headcount, type of event, contact) and says the manager will follow up.
 - Anything that looks like a complaint, legal threat, payment request, or invoice is handed off with a reason and not answered.
 - Do not contact the business, use its logo, or imply we work with it.
->>>>>>> 3f7521ac075fc5cb316badf5142a2d83a8f7c5b3
