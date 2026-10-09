@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "category": "party_group",
+    "details": {
+      "date": "2026-10-24",
+      "headcount": 15,
+      "ask": "Table reservation for 15 and guarantee of a good table"
+    },
+    "decision": "escalate_to_owner",
+    "reason": "The high-demand date requires owner review and the message contains a complaint.",
+    "draft_reply": "DRAFT FOR OWNER APPROVAL: Thank you for contacting us. I have forwarded your message regarding your friend's visit and your inquiry about a table for 15 on October 24, 2026, directly to ownership and management for review and follow-up.",
+    "id": "cf9ef1d8-e652-4a82-b91c-f710afafcefd",
+    "message": "TEST DATA \u2014 written by our team: A guest says their friend got sick after eating the wings and nobody helped. They also want a table for 15 on Saturday, October 24, 2026. Can you guarantee a good table?\n\nKeep the received date as today,",
+    "received_date": "2026-10-08",
+    "received_at": "2026-10-08T22:46:00Z",
+    "high_demand_date": true,
+    "created_at": "2026-10-08T22:55:22.768595Z"
+  }
+]
